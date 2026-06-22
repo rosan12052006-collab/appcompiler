@@ -95,14 +95,17 @@ export default function App() {
         return;
       }
 
-     if (!response.ok || !data.stages) {
-  addLog('Compilation failed: ' + (data.detail || 'Unknown error'), 'error');
-  return;
-}
-      if (!data.stages) {
-  addLog('Compilation failed: ' + (data.detail || 'Unknown error'), 'error');
-  return;
-}
+     if (!res.ok || !data.stages) {
+        addLog('Compilation failed: ' + (data.detail || 'Unknown error'), 'error');
+        return;
+      }
+
+      data.stages.forEach(function(s, i) {
+        setStageState(i, 'done');
+        var msg = 'Stage ' + s.stage + ' (' + s.name + ') - done in ' + s.duration + 's';
+        if (s.retries > 0) msg += ' (' + s.retries + ' repair)';
+        addLog(msg, s.retries > 0 ? 'warn' : 'success');
+      });
 
 data.stages.forEach(function(s, i) {
   setStageState(i, 'done');
