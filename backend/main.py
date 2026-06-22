@@ -88,16 +88,18 @@ def validate_and_repair(schema: dict) -> dict:
     checks = []
 
     # Check 1: All 4 layers present
-    required_layers = ["ui_schema", "api_schema", "db_schema", "auth_schema"]
-    for layer in required_layers:
-        if layer not in schema:
-            issues.append(f"Missing layer: {layer}")
-            schema[layer] = {}
-            repairs.append(f"Added empty {layer}")
-            checks.append({"name": f"{layer} present", "status": "repaired"})
-        else:
-            checks.append({"name": f"{layer} present", "status": "pass"})
-
+   # Check 1.5: Guarantee nested arrays exist
+    nested_defaults = {
+        "ui_schema": {"pages": []},
+        "api_schema": {"endpoints": []},
+        "db_schema": {"tables": []},
+        "auth_schema": {"roles": [], "strategy": None},
+    }
+    for layer, defaults in nested_defaults.items():
+        for key, default_val in defaults.items():
+            if schema[layer].get(key) is None:
+                schema[layer][key] = default_val
+                repairs.append(f"Defaulted {layer}.{key} to empty")
     # Check 2: UI fields exist in API
     ui_fields = set()
     for page in schema.get("ui_schema", {}).get("pages", []):
