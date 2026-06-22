@@ -99,6 +99,10 @@ export default function App() {
   addLog('Compilation failed: ' + (data.detail || 'Unknown error'), 'error');
   return;
 }
+      if (!data.stages) {
+  addLog('Compilation failed: ' + (data.detail || 'Unknown error'), 'error');
+  return;
+}
 
 data.stages.forEach(function(s, i) {
   setStageState(i, 'done');
